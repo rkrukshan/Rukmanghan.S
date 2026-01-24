@@ -22,14 +22,17 @@ const textVariants = {
 };
 
 export default function Hero() {
-  // ✅ Preload profile image in idle time (non-blocking)
+  // ✅ Simplified Preload logic (Safari-safe)
   useEffect(() => {
-    if ("requestIdleCallback" in window) {
-      requestIdleCallback(() => {
-        const img = new Image();
-        img.src = profilePic;
-      });
-    }
+    const preloadImage = () => {
+      const img = new Image();
+      img.src = profilePic;
+    };
+
+    // Use simple timeout to trigger preload after initial render
+    const preloadTimeout = setTimeout(preloadImage, 100);
+
+    return () => clearTimeout(preloadTimeout);
   }, []);
 
   return (
@@ -38,7 +41,7 @@ export default function Hero() {
 
         {/* Profile Image */}
         <div className="w-full lg:w-1/2">
-          <div className="flex sm:justify-center mr-28 lg:p-8">
+          <div className="flex sm:justify-center mr-0 lg:mr-28 lg:p-8">
             <motion.img
               variants={imageVariants}
               initial="hidden"
@@ -46,10 +49,10 @@ export default function Hero() {
               viewport={{ once: true, amount: 0.5 }}
               src={profilePic}
               alt="Rukmanghan"
-              loading="lazy"
+              loading="eager"
+              fetchPriority="high"
               decoding="async"
-              fetchpriority="low"
-              className="rounded-3xl w-[250px] h-[420px] md:w-[250px] md:h-[450px] lg:h-[550px] lg:w-[350px] hover:shadow-slate-400 hover:shadow-xl transition-all delay-150"
+              className="rounded-3xl w-[250px] h-[420px] md:w-[250px] md:h-[450px] lg:h-[550px] lg:w-[350px] hover:shadow-slate-400 hover:shadow-xl transition-all delay-150 object-cover"
             />
           </div>
         </div>
@@ -63,8 +66,6 @@ export default function Hero() {
           className="w-full lg:w-1/2"
         >
           <div className="flex flex-col items-center md:justify-center lg:items-start mt-10">
-
-            {/* Name */}
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -75,7 +76,6 @@ export default function Hero() {
               Rukmanghan.S
             </motion.h2>
 
-            {/* Title */}
             <motion.span
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -86,7 +86,6 @@ export default function Hero() {
               Software Engineer
             </motion.span>
 
-            {/* Hero Content */}
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -96,25 +95,8 @@ export default function Hero() {
             >
               {HERO_CONTENT}
             </motion.p>
-
-            {/* Download Resume (optional) */}
-            {/*
-            <motion.a
-              whileInView={{ opacity: 1, y: 0 }}
-              initial={{ opacity: 0, y: 100 }}
-              transition={{ duration: 1.5 }}
-              href={resume}
-              download="S.Rukmanghan_Resume.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-white rounded-full p-4 text-sm text-stone-800 mb-10"
-            >
-              Download Resume
-            </motion.a>
-            */}
           </div>
         </motion.div>
-
       </div>
     </div>
   );

@@ -13,12 +13,16 @@ const textVariants = {
 
 export default function Experience() {
 
+    // ✅ Safari-safe logic using simple timeout
     useEffect(() => {
-        if ("requestIdleCallback" in window) {
-            requestIdleCallback(() => {
-                EXPERIENCES.forEach(() => { });
-            });
-        }
+        const processExperiences = () => {
+            // This ensures data is ready in memory shortly after mount
+            EXPERIENCES.forEach(() => { });
+        };
+
+        const idleTimeout = setTimeout(processExperiences, 200);
+
+        return () => clearTimeout(idleTimeout);
     }, []);
 
     return (

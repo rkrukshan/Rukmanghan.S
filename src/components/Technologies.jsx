@@ -49,21 +49,31 @@ const floatingVariants = (duration) => ({
 export default function Technologies() {
   const [isMounted, setIsMounted] = useState(false);
 
-  // Set isMounted to true on component mount
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  // ✅ Preload all icons in background after first paint
+  // ✅ Simplified Preloading for all browsers (including Safari)
   useEffect(() => {
-    requestIdleCallback(() => {
-      [
-        RiReactjsLine, RiTailwindCssFill, SiReactrouter, RiNextjsLine, SiRedux,
-        SiAxios, SiMui, SiFramer, BsBootstrap, DiJava, SiSpringboot, DiMysql,
-        DiPhp, GrGithub, DiBitbucket, SiPostman, DiDocker, SiInsomnia, SiNgrok,
-        DiJenkins, SiCheckmk, SiMatomo, SiJira, RiWebhookFill, FcLinux
-      ].forEach(icon => icon.preload());
-    });
+    const iconsToPreload = [
+      RiReactjsLine, RiTailwindCssFill, SiReactrouter, RiNextjsLine, SiRedux,
+      SiAxios, SiMui, SiFramer, BsBootstrap, DiJava, SiSpringboot, DiMysql,
+      DiPhp, GrGithub, DiBitbucket, SiPostman, DiDocker, SiInsomnia, SiNgrok,
+      DiJenkins, SiCheckmk, SiMatomo, SiJira, RiWebhookFill, FcLinux
+    ];
+
+    const preloadIcons = () => {
+      iconsToPreload.forEach(icon => {
+        if (icon && typeof icon.preload === 'function') {
+          icon.preload();
+        }
+      });
+    };
+
+    // Use simple timeout to allow main thread to settle
+    const preloadTimeout = setTimeout(preloadIcons, 200);
+
+    return () => clearTimeout(preloadTimeout);
   }, []);
 
   const icons = [
@@ -97,7 +107,7 @@ export default function Technologies() {
   ];
 
   return (
-    <div>
+    <div className="pb-24">
       <motion.h2
         whileInView={{ opacity: 1, y: 0 }}
         initial={{ opacity: 0, y: -100 }}
@@ -108,8 +118,8 @@ export default function Technologies() {
         Technologies
       </motion.h2>
 
-      <div className="flex flex-wrap lg:flex-row items-center justify-center gap-4">
-        <Suspense fallback={null}>
+      <div className="flex flex-wrap lg:flex-row items-center justify-center gap-4 px-4">
+        <Suspense fallback={<div className="h-20 w-20" />}>
           {icons.map(([Icon, duration, color, tooltip], i) => (
             <motion.div
               key={i}
@@ -117,13 +127,13 @@ export default function Technologies() {
               initial={{ opacity: 0, scale: 0.8 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.05 }}
+              transition={{ duration: 0.5, delay: i * 0.03 }}
               animate="animate"
               variants={floatingVariants(duration)}
               data-tooltip-id="tech-tooltip"
               data-tooltip-content={tooltip}
             >
-              <Icon className={`text-7xl h-29 w-29 ${color}`} />
+              <Icon className={`text-7xl ${color}`} />
             </motion.div>
           ))}
         </Suspense>
@@ -133,19 +143,16 @@ export default function Technologies() {
         <Tooltip
           id="tech-tooltip"
           place="top"
-          effect="solid"
           className="z-50"
           style={{
-            backgroundColor: 'slate-900',
+            backgroundColor: '#0f172a',
             color: '#ffffff',
             fontSize: '14px',
             fontWeight: '500',
             padding: '8px 12px',
             borderRadius: '6px',
-            zIndex: 9999,
           }}
-          delayShow={300}
-          delayHide={200}
+          delayShow={200}
         />
       )}
     </div>

@@ -15,16 +15,21 @@ const textVariants = {
 };
 
 export default function Projects() {
-  // Preload all project images in idle time
+  // ✅ Simplified Preload logic for Safari compatibility
   useEffect(() => {
-    if ("requestIdleCallback" in window) {
-      requestIdleCallback(() => {
-        PROJECTS.forEach((project) => {
+    const preloadImages = () => {
+      PROJECTS.forEach((project) => {
+        if (project.image) {
           const img = new Image();
           img.src = project.image;
-        });
+        }
       });
-    }
+    };
+
+    // Use simple timeout to trigger preload after mount
+    const idleTimeout = setTimeout(preloadImages, 200);
+
+    return () => clearTimeout(idleTimeout);
   }, []);
 
   return (
