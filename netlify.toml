@@ -1,3 +1,7 @@
+[build]
+  command = "mkdir -p dist && cp public/_redirects dist/_redirects && cp public/index.html dist/index.html"
+  publish = "dist"
+
 [[redirects]]
   from = "/*"
   to = "https://rukmanghan.vercel.app/:splat"
